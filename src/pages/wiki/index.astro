@@ -3,6 +3,19 @@ import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 
 const essays = (await getCollection('wiki')).sort((a, b) => a.data.order - b.data.order);
+
+// The `wiki` collection loads from the `content/wiki` git submodule. If that
+// submodule is uninitialized (e.g. a clone without --recurse-submodules) the
+// glob loader finds nothing, warns, and happily returns an empty collection
+// — `astro build` would otherwise exit 0 and publish an empty site. Fail the
+// build instead: this page always renders during a static build, so this
+// throw is the guard.
+if (essays.length === 0) {
+  throw new Error(
+    'wiki collection is empty — is the content/wiki submodule initialized? ' +
+      'Run `git submodule update --init content/wiki`.'
+  );
+}
 ---
 
 <Base title="Wiki" description="Essays on the armillary and how this studio works with AI.">

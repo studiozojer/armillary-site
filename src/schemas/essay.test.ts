@@ -39,4 +39,8 @@ describe('essaySchema', () => {
   it('rejects an unknown kind', () => {
     expect(essaySchema.safeParse({ ...valid, kind: 'nonsense' }).success).toBe(false);
   });
+
+  it('rejects an unrecognized field — the README promises exactly four', () => {
+    expect(essaySchema.safeParse({ ...valid, draft: true }).success).toBe(false);
+  });
 });

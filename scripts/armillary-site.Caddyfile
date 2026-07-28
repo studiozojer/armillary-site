@@ -10,7 +10,7 @@
 #   /404.html                                          — the not-found page
 #   /_astro/**                                         — content-hashed CSS/JS
 #
-# HTTP-01 TLS (no DNS token needed), matching the zhouyi block.
+# HTTP-01 TLS (no DNS token needed).
 
 armillary.zojer.studio {
 	root * /opt/armillary-site/web
@@ -27,16 +27,30 @@ armillary.zojer.studio {
 	@immutable path /_astro/*
 	header @immutable Cache-Control "public, max-age=31536000, immutable"
 
-	# Exact file, then the directory index, then an .html sibling.
-	# An unresolved path 404s from file_server and is caught below — so a
-	# genuinely-missing route returns a real 404, not a 200 wearing the
-	# not-found page.
+	# Exact file, then the directory index. Every real route is a directory
+	# with an index.html (Astro's static build format) or an exact file
+	# (assets), so that's all that's needed here — no `{path}.html`
+	# fallback. That fallback used to let a request for the literal path
+	# `/404` match the flat `dist/404.html` file directly and get served
+	# with a 200, instead of falling through to handle_errors below. An
+	# unresolved path 404s from file_server and is caught below — so a
+	# genuinely-missing route (including /404 itself) returns a real 404,
+	# not a 200 wearing the not-found page.
 	handle {
-		try_files {path} {path}/index.html {path}.html
+		try_files {path} {path}/index.html
 		file_server
 	}
 
 	handle_errors {
+		# The site-level `header` block above does not apply to responses
+		# generated here — handle_errors runs its own handler chain — so
+		# error responses (including this one) repeat it explicitly.
+		header {
+			Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+			X-Content-Type-Options "nosniff"
+			X-Frame-Options "DENY"
+			-Server
+		}
 		rewrite * /404.html
 		file_server
 	}

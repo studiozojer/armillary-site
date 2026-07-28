@@ -10,10 +10,7 @@
 # This script updates that pointer first, so publishing new prose is one
 # command here after pushing there.
 #
-# Target box: the Nuremberg app cluster (ubuntu-8gb-nbg1-1), 91.98.204.141 —
-# where zhouyi.zojer.studio, admin.zojer.studio and api.kairos.solar already
-# terminate. NOTE: the studio's `kairos-vps` ssh alias points at the Hillsboro
-# box, not this one, so we target the app box explicitly.
+# Target box: 91.98.204.141, reached over SSH as root.
 #
 # Prereqs (one-time):
 #   - SSH access to the app box as root
@@ -33,20 +30,36 @@ REMOTE="${ARMILLARY_WEB_REMOTE:-root@91.98.204.141}"
 REMOTE_DIR="${ARMILLARY_WEB_DIR:-/opt/armillary-site/web}"
 EXPECTED_ESSAYS="${ARMILLARY_EXPECTED_ESSAYS:-5}"
 
+# Guard rail: this script runs `rsync --delete` as root against $REMOTE_DIR.
+# The box hosts more than this one site, so a stray/forgotten
+# ARMILLARY_WEB_DIR override must never be able to point that at another
+# property's docroot. Refuse anything outside /opt/armillary-site/ before
+# any ssh/rsync happens.
+case "$REMOTE_DIR" in
+  /opt/armillary-site|/opt/armillary-site/*) ;;
+  *)
+    echo "!! ARMILLARY_WEB_DIR must be under /opt/armillary-site/, got: '$REMOTE_DIR' — refusing to deploy" >&2
+    exit 1
+    ;;
+esac
+
 MODE="${1:-}"
 
+OLD_WIKI_COMMIT=""
 if [[ "$MODE" != "--pin" && "$MODE" != "--no-build" ]]; then
+  OLD_WIKI_COMMIT=$(git rev-parse HEAD:content/wiki)
   echo "==> Updating content submodule to origin/main"
   git submodule update --init --remote content/wiki
 fi
 
 WIKI_COMMIT=$(git -C content/wiki rev-parse --short HEAD)
+WIKI_COMMIT_FULL=$(git -C content/wiki rev-parse HEAD)
 echo "==> Wiki content at $WIKI_COMMIT"
 
 if [[ "$MODE" != "--no-build" ]]; then
   echo "==> Building (astro build)"
   rm -rf dist
-  npx astro build
+  node_modules/.bin/astro build
 fi
 
 if [[ ! -f dist/index.html ]]; then
@@ -76,3 +89,17 @@ rsync -avz --delete dist/ "$REMOTE:$REMOTE_DIR/"
 echo "==> Deployed wiki@$WIKI_COMMIT. Verify:"
 echo "    curl -sI https://armillary.zojer.studio/ | head -1"
 echo "    curl -so /dev/null -w '%{http_code}\\n' https://armillary.zojer.studio/no-such-page"
+
+if [[ -n "$OLD_WIKI_COMMIT" && "$OLD_WIKI_COMMIT" != "$WIKI_COMMIT_FULL" ]]; then
+  echo "" >&2
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&2
+  echo "!! content/wiki submodule pointer moved but is NOT committed here." >&2
+  echo "!!   old: $OLD_WIKI_COMMIT" >&2
+  echo "!!   new: $WIKI_COMMIT_FULL" >&2
+  echo "!! What is now live will not match what --pin reproduces until you" >&2
+  echo "!! commit the pointer:" >&2
+  echo "!!" >&2
+  echo "!!   git add content/wiki && git commit -m 'wiki: pin $WIKI_COMMIT'" >&2
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >&2
+  echo "" >&2
+fi
