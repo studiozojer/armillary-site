@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const essays = (await getCollection('wiki')).sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="Wiki" description="Essays on the armillary and how this studio works with AI.">
+  <h1>Wiki</h1>
+  <p class="lede">Written to be read in order, though nothing stops you.</p>
+  <ul class="toc">
+    {essays.map((essay) => (
+      <li>
+        <a href={`/wiki/${essay.id}/`}>{essay.data.title}</a>
+        <p>{essay.data.description}</p>
+      </li>
+    ))}
+  </ul>
+</Base>

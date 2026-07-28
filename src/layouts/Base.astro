@@ -1,0 +1,37 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — armillary</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+  </head>
+  <body>
+    <header>
+      <a href="/" class="mark">armillary</a>
+      <nav>
+        <a href="/wiki/">wiki</a>
+        <a href="/start">start</a>
+        <a href="https://github.com/studiozojer/armillary">source</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <p>A <a href="https://zojer.studio">zojer studio</a> project. Content lives in <a href="https://github.com/studiozojer/armillary-wiki">armillary-wiki</a>.</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Start" description="Clone the router, declare what it composes, and boot.">
+  <h1>Start</h1>
+  <p class="lede">Three steps. The first one already gives you something that runs.</p>
+
+  <h2>1. Clone the router</h2>
+  <pre><code>git clone https://github.com/studiozojer/armillary.git
+cd armillary</code></pre>
+  <p>That is a working host. It declares no modules, loads no protocols, and that is the default rather than an error.</p>
+
+  <h2>2. Declare what it composes</h2>
+  <p><code>modules.toml</code> is the public schema and carries commented examples of every slot. Your actual composition — private repo URLs, per-machine paths — belongs in a gitignored <code>modules.local.toml</code>, so the router you publish stays agnostic about who occupies it.</p>
+
+  <h2>3. Boot</h2>
+  <p>Launch a session from the router root. It reads the manifest, loads every protocol declared <code>boot</code>, registers the on-demand ones as pointers, and routes your opening message to whichever composed module owns the work.</p>
+
+  <p>The <a href="/wiki/composition/">composition</a> and <a href="/wiki/protocols-and-when-they-load/">protocols</a> essays cover what those words mean.</p>
+</Base>

@@ -1,17 +1,19 @@
 ---
-
+import Base from '../layouts/Base.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base
+  title="A router for composed workspaces"
+  description="The armillary composes whatever a workspace declares — operators, a commons, repos, and the protocols they bring."
+>
+  <h1>armillary</h1>
+  <p class="lede">A minimal, operator-agnostic router. It composes whatever a workspace declares — operators, a commons, repos, and the protocols they bring — and loads each into a session at its declared time.</p>
+
+  <p>It assumes nothing by default. A bare clone declares no modules and is still a working host, which is the point: composition is additive, and there is nothing to configure before the thing runs.</p>
+
+  <h2>Read</h2>
+  <p>The <a href="/wiki/">wiki</a> explains what the armillary is and how this studio works with AI. If you would rather run it than read about it, <a href="/start">start here</a>.</p>
+
+  <h2>Source</h2>
+  <p><a href="https://github.com/studiozojer/armillary">armillary</a> — the router. <a href="https://github.com/studiozojer/armillary-core">armillary-core</a> — the composition standard and an engine that obeys it.</p>
+</Base>
