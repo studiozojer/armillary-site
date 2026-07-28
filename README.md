@@ -1,43 +1,33 @@
-# Astro Starter Kit: Minimal
+# armillary-site
 
-```sh
-npm create astro@latest -- --template minimal
+[armillary.zojer.studio](https://armillary.zojer.studio) — the Astro renderer for [armillary-wiki](https://github.com/studiozojer/armillary-wiki).
+
+**The content is not in this repo.** It lives in `armillary-wiki`, pinned here as a git submodule at `content/wiki`. This repo is one projection of that record.
+
+## Develop
+
+```bash
+git clone --recurse-submodules https://github.com/studiozojer/armillary-site.git
+cd armillary-site && npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Forgot `--recurse-submodules`? `git submodule update --init`.
 
-## 🚀 Project Structure
+## Test
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+npm test
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Unit tests on the frontmatter schema. A page missing `order`, or claiming `kind: practice`, must fail — that guarantee is why this site is built with Astro rather than a template-based generator.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Publish
 
-Any static assets, like images, can be placed in the `public/` directory.
+```bash
+scripts/deploy-web.sh
+```
 
-## 🧞 Commands
+Updates the content submodule to `origin/main`, builds, checks the output is not silently empty, and rsyncs to the app box. `--pin` builds the currently pinned content commit instead of updating it; `--no-build` ships the existing `dist/`.
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The Caddy site block lives at `scripts/armillary-site.Caddyfile` and is appended to `/etc/caddy/Caddyfile` on the box.
